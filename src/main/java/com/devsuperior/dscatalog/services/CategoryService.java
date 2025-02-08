@@ -35,4 +35,12 @@ public class CategoryService {
                 .orElseThrow(() -> new ResourceNotFoundException("Resource not found! Id: " + id));
         return modelMapper.map(entity, CategoryDTO.class);
     }
+
+    @Transactional
+    public CategoryDTO save(CategoryDTO dto){
+        Category entity = modelMapper.map(dto, Category.class);
+        entity = categoryRepository.save(entity);
+        return modelMapper.map(entity, CategoryDTO.class);
+
+    }
 }
