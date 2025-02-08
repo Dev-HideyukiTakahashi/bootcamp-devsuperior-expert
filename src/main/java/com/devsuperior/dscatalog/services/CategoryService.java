@@ -3,6 +3,7 @@ package com.devsuperior.dscatalog.services;
 import com.devsuperior.dscatalog.dto.CategoryDTO;
 import com.devsuperior.dscatalog.entities.Category;
 import com.devsuperior.dscatalog.repositories.CategoryRepository;
+import com.devsuperior.dscatalog.services.exceptions.ResourceNotFoundException;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -26,5 +27,12 @@ public class CategoryService {
         return entity.stream()
                 .map(cat -> modelMapper.map(cat, CategoryDTO.class))
                 .toList();
+    }
+
+    @Transactional(readOnly = true)
+    public CategoryDTO findById(Long id){
+        Category entity = categoryRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Resource not found! Id: " + id));
+        return modelMapper.map(entity, CategoryDTO.class);
     }
 }
