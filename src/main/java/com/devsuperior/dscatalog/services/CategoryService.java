@@ -9,6 +9,8 @@ import jakarta.persistence.EntityNotFoundException;
 import org.modelmapper.MappingException;
 import org.modelmapper.ModelMapper;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -27,11 +29,10 @@ public class CategoryService {
     }
 
     @Transactional(readOnly = true)
-    public List<CategoryDTO> findAll() {
-        List<Category> entity = categoryRepository.findAll();
-        return entity.stream()
-                .map(cat -> modelMapper.map(cat, CategoryDTO.class))
-                .toList();
+    public Page<CategoryDTO> findAll(Pageable pageable) {
+        Page<Category> entity = categoryRepository.findAll(pageable);
+        return entity
+                .map(cat -> modelMapper.map(cat, CategoryDTO.class));
     }
 
     @Transactional(readOnly = true)
