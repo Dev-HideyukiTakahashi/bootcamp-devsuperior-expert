@@ -1,7 +1,9 @@
 package com.devsuperior.dscatalog.config;
 
 import com.devsuperior.dscatalog.dto.CategoryDTO;
+import com.devsuperior.dscatalog.dto.ProductDTO;
 import com.devsuperior.dscatalog.entities.Category;
+import com.devsuperior.dscatalog.entities.Product;
 import org.modelmapper.ModelMapper;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -13,7 +15,7 @@ public class ModelMapperConfig {
     // atraves dos getter e setters
     // obs: incluir setter nas listas tambem para funcionar
     @Bean
-    public ModelMapper modelMapper(){
+    public ModelMapper modelMapper() {
         ModelMapper modelMapper = new ModelMapper();
 
         /*
@@ -23,6 +25,14 @@ public class ModelMapperConfig {
          */
         modelMapper.createTypeMap(CategoryDTO.class, Category.class)
                 .addMappings(mapper -> mapper.skip(Category::setId));
+
+
+        // Product.Class Config
+        modelMapper.typeMap(ProductDTO.class, Product.class)
+                .addMappings(mapper -> {
+                    mapper.skip(Product::setCategories);
+                    mapper.skip(Product::setId);
+                });
 
         return modelMapper;
     }

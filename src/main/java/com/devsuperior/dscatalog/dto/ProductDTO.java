@@ -1,15 +1,11 @@
 package com.devsuperior.dscatalog.dto;
 
-import com.devsuperior.dscatalog.entities.Category;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.JoinTable;
-import jakarta.persistence.ManyToMany;
 import lombok.Getter;
 import lombok.Setter;
 
-import java.util.HashSet;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
-import java.util.Set;
 
 @Getter @Setter
 public class ProductDTO {
@@ -19,7 +15,8 @@ public class ProductDTO {
     private String description;
     private Double price;
     private String imgUrl;
-    private Set<Category> categories = new HashSet<>();
+
+    private List<CategoryDTO> categories = new ArrayList<>();
 
     @Override
     public boolean equals(Object o) {
