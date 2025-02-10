@@ -3,6 +3,7 @@ package com.devsuperior.dscatalog.entities;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.time.Instant;
 import java.util.Objects;
 
 @Getter @Setter
@@ -14,6 +15,24 @@ public class Category {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     private String name;
+
+    @Column(columnDefinition = "TIMESTAMP WITHOUT TIME ZONE")
+    private Instant createdAt;
+
+    @Column(columnDefinition = "TIMESTAMP WITHOUT TIME ZONE")
+    private Instant updatedAt;
+
+    // Antes de salvar o objeto, vai atribuir o valor
+    @PrePersist
+    public void prePersist(){
+        createdAt = Instant.now();
+    }
+
+    // Antes de atualizar o objeto, vai atribuir o valor
+    @PreUpdate
+    public void preUpdate(){
+        updatedAt = Instant.now();
+    }
 
     @Override
     public boolean equals(Object o) {
