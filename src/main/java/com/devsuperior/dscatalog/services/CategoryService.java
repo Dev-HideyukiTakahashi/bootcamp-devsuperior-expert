@@ -4,6 +4,8 @@ import com.devsuperior.dscatalog.dto.CategoryDTO;
 import com.devsuperior.dscatalog.entities.Category;
 import com.devsuperior.dscatalog.repositories.CategoryRepository;
 import com.devsuperior.dscatalog.services.exceptions.ResourceNotFoundException;
+import jakarta.persistence.EntityNotFoundException;
+import org.modelmapper.MappingException;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -22,7 +24,7 @@ public class CategoryService {
     }
 
     @Transactional(readOnly = true)
-    public List<CategoryDTO> findAll(){
+    public List<CategoryDTO> findAll() {
         List<Category> entity = categoryRepository.findAll();
         return entity.stream()
                 .map(cat -> modelMapper.map(cat, CategoryDTO.class))
@@ -30,17 +32,28 @@ public class CategoryService {
     }
 
     @Transactional(readOnly = true)
-    public CategoryDTO findById(Long id){
+    public CategoryDTO findById(Long id) {
         Category entity = categoryRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Resource not found! Id: " + id));
         return modelMapper.map(entity, CategoryDTO.class);
     }
 
     @Transactional
-    public CategoryDTO save(CategoryDTO dto){
+    public CategoryDTO save(CategoryDTO dto) {
         Category entity = modelMapper.map(dto, Category.class);
         entity = categoryRepository.save(entity);
         return modelMapper.map(entity, CategoryDTO.class);
+    }
 
+    @Transactional
+    public CategoryDTO update(Long id, CategoryDTO dto) {
+        try {
+            Category entity = categoryRepository.getReferenceById(id);
+            modelMapper.map(dto, entity);
+            entity = categoryRepository.save(entity);
+            return modelMapper.map(entity, CategoryDTO.class);
+        } catch (EntityNotFoundException | MappingException e) {
+            throw new ResourceNotFoundException("Resource not found! Id: " + id);
+        }
     }
 }

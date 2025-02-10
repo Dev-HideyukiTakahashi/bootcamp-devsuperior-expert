@@ -2,7 +2,6 @@ package com.devsuperior.dscatalog.controllers;
 
 import com.devsuperior.dscatalog.dto.CategoryDTO;
 import com.devsuperior.dscatalog.services.CategoryService;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
@@ -41,5 +40,11 @@ public class CategoryController {
                 .buildAndExpand(dto.getId())
                 .toUri();
         return ResponseEntity.created(uri).body(dto);
+    }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<CategoryDTO> findById(@PathVariable Long id, @RequestBody CategoryDTO dto){
+        dto = categoryService.update(id, dto);
+        return ResponseEntity.ok(dto);
     }
 }
