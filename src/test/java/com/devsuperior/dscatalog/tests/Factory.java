@@ -9,12 +9,7 @@ import java.time.Instant;
 
 public class Factory {
 
-
-    private static ModelMapper mapper;
-
-    public Factory(ModelMapper mapper) {
-        Factory.mapper = mapper;
-    }
+    private static final ModelMapper mapper = new ModelMapper();
 
     public static Product createProduct() {
         Product product = Product.builder()
@@ -40,4 +35,11 @@ public class Factory {
         return mapper.map(product, ProductDTO.class);
     }
 
+    public static Category createCategory() {
+        Category category = Category.builder()
+                .id(2L)
+                .name("Electronics")
+                .build();
+        return category;
+    }
 }
