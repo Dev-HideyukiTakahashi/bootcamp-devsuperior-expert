@@ -1,4 +1,4 @@
-package com.devsuperior.dscatalog.dto;
+package com.devsuperior.dscatalog.controllers.handlers;
 
 import lombok.Builder;
 import lombok.Getter;
@@ -12,4 +12,5 @@ public class CustomError {
     private Integer status;
     private String error;
     private String path;
+
 }

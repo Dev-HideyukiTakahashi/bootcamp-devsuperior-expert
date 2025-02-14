@@ -1,11 +1,11 @@
 package com.devsuperior.dscatalog.controllers.handlers;
 
-import com.devsuperior.dscatalog.dto.CustomError;
 import com.devsuperior.dscatalog.services.exceptions.DatabaseException;
 import com.devsuperior.dscatalog.services.exceptions.ResourceNotFoundException;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 
@@ -16,7 +16,7 @@ public class ControllerExceptionHandler {
 
     @ExceptionHandler(ResourceNotFoundException.class)
     public ResponseEntity<CustomError> notFound(ResourceNotFoundException e,
-                                                HttpServletRequest request){
+                                                HttpServletRequest request) {
         CustomError error = CustomError.builder()
                 .timestamp(Instant.now())
                 .status(HttpStatus.NOT_FOUND.value())
@@ -28,7 +28,7 @@ public class ControllerExceptionHandler {
 
     @ExceptionHandler(DatabaseException.class)
     public ResponseEntity<CustomError> dataBase(DatabaseException e,
-                                                HttpServletRequest request){
+                                                HttpServletRequest request) {
         CustomError error = CustomError.builder()
                 .timestamp(Instant.now())
                 .status(HttpStatus.CONFLICT.value())
@@ -36,5 +36,19 @@ public class ControllerExceptionHandler {
                 .path(request.getRequestURI())
                 .build();
         return ResponseEntity.status(HttpStatus.CONFLICT).body(error);
+    }
+
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    public ResponseEntity<ValidationError> validation(MethodArgumentNotValidException e,
+                                                      HttpServletRequest request) {
+        Instant timestamp = Instant.now();
+        Integer status = HttpStatus.UNPROCESSABLE_ENTITY.value();
+        String err = "Validation error!";
+        String path = request.getRequestURI();
+        ValidationError error = new ValidationError(timestamp, status, err, path);
+
+       e.getFieldErrors().forEach(x -> error.addError(x.getField(), x.getDefaultMessage()));
+
+        return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY).body(error);
     }
 }
