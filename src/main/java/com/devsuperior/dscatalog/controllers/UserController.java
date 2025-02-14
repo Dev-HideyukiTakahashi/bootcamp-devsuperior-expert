@@ -2,6 +2,7 @@ package com.devsuperior.dscatalog.controllers;
 
 import com.devsuperior.dscatalog.dto.UserDTO;
 import com.devsuperior.dscatalog.dto.UserInsertDTO;
+import com.devsuperior.dscatalog.dto.UserUpdateDTO;
 import com.devsuperior.dscatalog.services.UserService;
 import jakarta.validation.Valid;
 import org.springframework.data.domain.Page;
@@ -47,7 +48,7 @@ public class UserController {
 
     @PutMapping("/{id}")
     public ResponseEntity<UserDTO> update(@PathVariable Long id,
-                                          @Valid @RequestBody UserInsertDTO dto) {
+                                          @Valid @RequestBody UserUpdateDTO dto) {
         UserDTO updatedDto = userService.update(id, dto);
         return ResponseEntity.ok(updatedDto);
     }
