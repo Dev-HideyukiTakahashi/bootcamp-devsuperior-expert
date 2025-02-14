@@ -2,8 +2,11 @@ package com.devsuperior.dscatalog.config;
 
 import com.devsuperior.dscatalog.dto.CategoryDTO;
 import com.devsuperior.dscatalog.dto.ProductDTO;
+import com.devsuperior.dscatalog.dto.UserDTO;
+import com.devsuperior.dscatalog.dto.UserInsertDTO;
 import com.devsuperior.dscatalog.entities.Category;
 import com.devsuperior.dscatalog.entities.Product;
+import com.devsuperior.dscatalog.entities.User;
 import org.modelmapper.ModelMapper;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -32,6 +35,16 @@ public class ModelMapperConfig {
                 .addMappings(mapper -> {
                     mapper.skip(Product::setCategories);
                     mapper.skip(Product::setId);
+                });
+
+        // User.Class Config
+        modelMapper.typeMap(UserDTO.class, User.class)
+                .addMappings(mapper -> {
+                    mapper.skip(User::setId);
+                });
+        modelMapper.typeMap(UserInsertDTO.class, User.class)
+                .addMappings(mapper -> {
+                    mapper.skip(User::setId);
                 });
 
         return modelMapper;
