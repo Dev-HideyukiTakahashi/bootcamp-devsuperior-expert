@@ -6,6 +6,7 @@ import com.devsuperior.dscatalog.dto.UserInsertDTO;
 import com.devsuperior.dscatalog.dto.UserUpdateDTO;
 import com.devsuperior.dscatalog.entities.Role;
 import com.devsuperior.dscatalog.entities.User;
+import com.devsuperior.dscatalog.projections.UserDetailsProjection;
 import com.devsuperior.dscatalog.repositories.RoleRepository;
 import com.devsuperior.dscatalog.repositories.UserRepository;
 import com.devsuperior.dscatalog.services.exceptions.DatabaseException;
@@ -16,18 +17,23 @@ import org.modelmapper.ModelMapper;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+
 @Service
-public class UserService {
+public class UserService implements UserDetailsService {
 
     private final UserRepository userRepository;
     private final ModelMapper modelMapper;
     private final RoleRepository roleRepository;
-    private BCryptPasswordEncoder passwordEncoder;
+    private final BCryptPasswordEncoder passwordEncoder;
 
     public UserService(UserRepository userRepository, ModelMapper modelMapper,
                        RoleRepository roleRepository, BCryptPasswordEncoder passwordEncoder) {
@@ -90,5 +96,21 @@ public class UserService {
             entity.getRoles().add(role);
         }
         entity.setPassword(passwordEncoder.encode(password));
+    }
+
+    @Override
+    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+        List<UserDetailsProjection> result = userRepository.searchUserAndRolesByEmail(username);
+        if(result.isEmpty()){
+            throw new UsernameNotFoundException("User not found!");
+        }
+
+        User user = new User();
+        user.setEmail(username);
+        user.setPassword(result.get(0).getPassword());
+        result.forEach(projection -> user.addRole(
+                new Role(projection.getRoleId(), projection.getAuthority())));
+
+        return user;
     }
 }
