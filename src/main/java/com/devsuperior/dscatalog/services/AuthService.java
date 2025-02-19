@@ -8,7 +8,11 @@ import com.devsuperior.dscatalog.repositories.PasswordRecoverRepository;
 import com.devsuperior.dscatalog.repositories.UserRepository;
 import com.devsuperior.dscatalog.services.exceptions.ResourceNotFoundException;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -71,4 +75,18 @@ public class AuthService {
         user.setPassword(passwordEncoder.encode(dto.getPassword()));
         user = userRepository.save(user);
     }
+
+    protected User authenticated() {
+        try {
+            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+            Jwt jwtPrincipal = (Jwt) authentication.getPrincipal();
+            String username = jwtPrincipal.getClaim("username");
+            return userRepository.findByEmail(username);
+        }
+        catch (Exception e) {
+            throw new UsernameNotFoundException("Invalid user");
+        }
+    }
+
+
 }

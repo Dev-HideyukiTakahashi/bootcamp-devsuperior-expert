@@ -31,10 +31,17 @@ public class UserController {
         return ResponseEntity.ok(dto);
     }
 
+    @PreAuthorize("hasRole('ROLE_OPERATOR')")
+    @GetMapping("/profile")
+    public ResponseEntity<UserDTO> findById() {
+        UserDTO dto = userService.getProfile();
+        return ResponseEntity.ok(dto);
+    }
+
     @PreAuthorize("hasRole('ROLE_ADMIN')")
     @GetMapping("/{id}")
     public ResponseEntity<UserDTO> findById(@PathVariable Long id) {
-        UserDTO dto = userService.findById(id);
+        UserDTO dto = userService.getProfile();
         return ResponseEntity.ok(dto);
     }
 

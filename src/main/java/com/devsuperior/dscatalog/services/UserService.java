@@ -20,7 +20,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
@@ -35,13 +34,15 @@ public class UserService implements UserDetailsService {
     private final ModelMapper modelMapper;
     private final RoleRepository roleRepository;
     private final PasswordEncoder passwordEncoder;
+    private final AuthService authService;
 
     public UserService(UserRepository userRepository, ModelMapper modelMapper,
-                       RoleRepository roleRepository, PasswordEncoder passwordEncoder) {
+                       RoleRepository roleRepository, PasswordEncoder passwordEncoder, AuthService authService) {
         this.userRepository = userRepository;
         this.modelMapper = modelMapper;
         this.roleRepository = roleRepository;
         this.passwordEncoder = passwordEncoder;
+        this.authService = authService;
     }
 
 
@@ -103,7 +104,7 @@ public class UserService implements UserDetailsService {
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         List<UserDetailsProjection> result = userRepository.searchUserAndRolesByEmail(username);
-        if(result.isEmpty()){
+        if (result.isEmpty()) {
             throw new UsernameNotFoundException("User not found!");
         }
 
@@ -114,5 +115,11 @@ public class UserService implements UserDetailsService {
                 new Role(projection.getRoleId(), projection.getAuthority())));
 
         return user;
+    }
+
+    @Transactional(readOnly = true)
+    public UserDTO getProfile() {
+        User entity = authService.authenticated();
+        return modelMapper.map(entity, UserDTO.class);
     }
 }
