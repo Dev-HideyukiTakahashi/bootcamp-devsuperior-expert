@@ -4,6 +4,7 @@ import com.devsuperior.dscatalog.dto.CategoryDTO;
 import com.devsuperior.dscatalog.dto.ProductDTO;
 import com.devsuperior.dscatalog.entities.Category;
 import com.devsuperior.dscatalog.entities.Product;
+import com.devsuperior.dscatalog.projections.ProductProjection;
 import com.devsuperior.dscatalog.repositories.CategoryRepository;
 import com.devsuperior.dscatalog.repositories.ProductRepository;
 import com.devsuperior.dscatalog.services.exceptions.DatabaseException;
@@ -13,10 +14,14 @@ import org.modelmapper.MappingException;
 import org.modelmapper.ModelMapper;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.Arrays;
+import java.util.List;
 
 @Service
 public class ProductService {
@@ -37,6 +42,29 @@ public class ProductService {
         Page<Product> entity = productRepository.findAll(pageable);
         return entity
                 .map(cat -> modelMapper.map(cat, ProductDTO.class));
+    }
+
+    @Transactional(readOnly = true)
+    public Page<ProductDTO> searchAll(String name, String categoryId, Pageable pageable) {
+        List<Long> categoryList = List.of();
+        if(!categoryId.equals("0")){
+            //populando a lista com os ids do parâmetro
+            categoryList = Arrays.stream(categoryId.split(",")).map(Long::parseLong).toList();
+            //skip da condição jpql WHERE (:categoryId = '0')
+            categoryId = "9999";
+        }
+        // obtendo resultado dos produtos filtrados por categoria ou não
+        Page<ProductProjection> page = productRepository.searchAll(name, categoryList, categoryId, pageable);
+        // gerando uma lista com os ids dos produtos baseado na busca acima
+        List<Long> productsIds = page.map(ProductProjection::getId).toList();
+
+        // buscando todos produtos por id conforme a lista de productsIds
+        List<Product> entities = productRepository.searchProductsWithCategories(productsIds);
+        // convertendo para dto
+        List<ProductDTO> dto = entities.stream()
+                .map(prod -> modelMapper.map(prod, ProductDTO.class)).toList();
+        // retornando o pageable reaproveitando os parametros da busca do page acima
+        return new PageImpl<>(dto, page.getPageable(), page.getTotalElements());
     }
 
     @Transactional(readOnly = true)
