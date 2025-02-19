@@ -1,0 +1,13 @@
+{
+  "properties": [
+    {
+      "name": "email.password-recover.token.minutes",
+      "type": "java.lang.String",
+      "description": "Description for email.password-recover.token.minutes."
+    },
+    {
+      "name": "email.password-recover.uri",
+      "type": "java.lang.String",
+      "description": "Description for email.password-recover.uri."
+    }
+  ] }

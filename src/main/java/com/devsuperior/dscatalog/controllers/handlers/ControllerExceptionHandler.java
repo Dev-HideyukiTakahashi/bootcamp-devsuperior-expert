@@ -1,6 +1,7 @@
 package com.devsuperior.dscatalog.controllers.handlers;
 
 import com.devsuperior.dscatalog.services.exceptions.DatabaseException;
+import com.devsuperior.dscatalog.services.exceptions.EmailException;
 import com.devsuperior.dscatalog.services.exceptions.ResourceNotFoundException;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.HttpStatus;
@@ -50,5 +51,17 @@ public class ControllerExceptionHandler {
        e.getFieldErrors().forEach(x -> error.addError(x.getField(), x.getDefaultMessage()));
 
         return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY).body(error);
+    }
+
+    @ExceptionHandler(EmailException.class)
+    public ResponseEntity<CustomError> dataBase(EmailException e,
+                                                HttpServletRequest request) {
+        CustomError error = CustomError.builder()
+                .timestamp(Instant.now())
+                .status(HttpStatus.BAD_REQUEST.value())
+                .error(e.getMessage())
+                .path(request.getRequestURI())
+                .build();
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
     }
 }
