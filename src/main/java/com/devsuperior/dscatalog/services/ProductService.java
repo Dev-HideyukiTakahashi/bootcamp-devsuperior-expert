@@ -47,23 +47,17 @@ public class ProductService {
     @Transactional(readOnly = true)
     public Page<ProductDTO> searchAll(String name, String categoryId, Pageable pageable) {
         List<Long> categoryList = List.of();
-        if(!categoryId.equals("0")){
-            //populando a lista com os ids do parâmetro
+        if (!categoryId.equals("0")) {
             categoryList = Arrays.stream(categoryId.split(",")).map(Long::parseLong).toList();
-            //skip da condição jpql WHERE (:categoryId = '0')
-            categoryId = "9999";
+            categoryId = "999"; //skip da condição JPQL WHERE (:categoryId = '0')
         }
-        // obtendo resultado dos produtos filtrados por categoria ou não
         Page<ProductProjection> page = productRepository.searchAll(name, categoryList, categoryId, pageable);
-        // gerando uma lista com os ids dos produtos baseado na busca acima
-        List<Long> productsIds = page.map(ProductProjection::getId).toList();
+        List<Long> productsId = page.map(ProductProjection::getId).toList();
 
-        // buscando todos produtos por id conforme a lista de productsIds
-        List<Product> entities = productRepository.searchProductsWithCategories(productsIds);
-        // convertendo para dto
+        List<Product> entities = productRepository.searchProductsWithCategories(productsId, page.getSort());
         List<ProductDTO> dto = entities.stream()
                 .map(prod -> modelMapper.map(prod, ProductDTO.class)).toList();
-        // retornando o pageable reaproveitando os parametros da busca do page acima
+
         return new PageImpl<>(dto, page.getPageable(), page.getTotalElements());
     }
 

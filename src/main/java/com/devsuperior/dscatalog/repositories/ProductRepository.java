@@ -4,6 +4,7 @@ import com.devsuperior.dscatalog.entities.Product;
 import com.devsuperior.dscatalog.projections.ProductProjection;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
@@ -26,8 +27,7 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
 
 
     @Query("SELECT obj FROM Product obj JOIN FETCH " +
-           "obj.categories WHERE obj.id IN :productsIds " +
-           "ORDER BY obj.name")
-    List<Product> searchProductsWithCategories(List<Long> productsIds);
+           "obj.categories WHERE obj.id IN :productsId")
+    List<Product> searchProductsWithCategories(List<Long> productsId, Sort sort);
 
 }
