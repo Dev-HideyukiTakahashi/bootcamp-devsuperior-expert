@@ -58,9 +58,11 @@ public class UserService implements UserDetailsService {
     }
 
     @Transactional
-    public UserDTO save(UserInsertDTO dto) {
+    public UserDTO insert(UserInsertDTO dto) {
         User entity = new User();
         copyDtoToEntity(dto, entity, dto.getPassword());
+        entity.getRoles().clear();
+        entity.addRole(roleRepository.findByAuthority("ROLE_OPERATOR"));
         entity = userRepository.save(entity);
         return modelMapper.map(entity, UserDTO.class);
     }
